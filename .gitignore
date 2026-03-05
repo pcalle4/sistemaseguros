@@ -1,0 +1,4 @@
+insurance-app/**/node_modules/
+insurance-app/**/.env
+insurance-app/**/.env.*
+!insurance-app/**/.env.example
