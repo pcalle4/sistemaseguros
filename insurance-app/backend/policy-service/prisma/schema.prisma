@@ -1,8 +1,22 @@
 generator client {
   provider = "prisma-client-js"
+  output   = "../../../node_modules/@insurance/policy-prisma-client"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+enum PolicyStatus {
+  ACTIVE
+}
+
+model Policy {
+  id       String       @id @db.Uuid
+  quoteId  String       @unique @map("quote_id") @db.Uuid
+  status   PolicyStatus
+  issuedAt DateTime     @map("issued_at")
+
+  @@map("policies")
 }

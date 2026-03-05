@@ -1,19 +1,16 @@
 import 'dotenv/config';
 import 'reflect-metadata';
-import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import { EnvConfig, ENV_CONFIG } from './config/env';
+import { configureHttpApp } from './presentation/bootstrap/http-app.bootstrap';
+import { AppLogger } from './shared/logging/logger';
 
-async function bootstrap() {
+async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
 
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      transform: true,
-    }),
-  );
+  configureHttpApp(app);
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Insurance Policy Service')
@@ -24,10 +21,11 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('docs', app, document);
 
-  const port = Number(process.env.PORT ?? 3070);
-  await app.listen(port);
+  const env = app.get<EnvConfig>(ENV_CONFIG);
+  await app.listen(env.port);
 
-  Logger.log(`Policy Service running on http://localhost:${port}`, 'Bootstrap');
+  const logger = app.get(AppLogger);
+  logger.logInfo(`Policy Service running on http://localhost:${env.port}`);
 }
 
 bootstrap();
