@@ -6,3 +6,71 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+enum QuoteStatus {
+  QUOTED
+}
+
+enum BreakdownConcept {
+  BASE
+  AGE_FACTOR
+  LOCATION_FACTOR
+  COVERAGE_FACTOR
+}
+
+model InsuranceType {
+  code      String     @id @db.VarChar(20)
+  name      String     @db.VarChar(100)
+  coverages Coverage[]
+  quotes    Quote[]
+
+  @@map("insurance_types")
+}
+
+model Coverage {
+  id                String        @id @default(uuid()) @db.Uuid
+  insuranceTypeCode String        @map("insurance_type_code") @db.VarChar(20)
+  code              String        @db.VarChar(20)
+  name              String        @db.VarChar(100)
+  insuranceType     InsuranceType @relation(fields: [insuranceTypeCode], references: [code], onDelete: Restrict, onUpdate: Cascade)
+  quotes            Quote[]
+
+  @@unique([insuranceTypeCode, code])
+  @@map("coverages")
+}
+
+model Location {
+  code   String  @id @db.VarChar(30)
+  name   String  @db.VarChar(100)
+  quotes Quote[]
+
+  @@map("locations")
+}
+
+model Quote {
+  id               String          @id @db.Uuid
+  status           QuoteStatus
+  insuranceType    String          @map("insurance_type") @db.VarChar(20)
+  coverage         String          @db.VarChar(20)
+  age              Int
+  location         String          @db.VarChar(30)
+  estimatedPremium Int             @map("estimated_premium")
+  createdAt        DateTime        @map("created_at")
+  insuranceTypeRef InsuranceType   @relation(fields: [insuranceType], references: [code], onDelete: Restrict)
+  coverageRef      Coverage        @relation(fields: [insuranceType, coverage], references: [insuranceTypeCode, code], onDelete: Restrict)
+  locationRef      Location        @relation(fields: [location], references: [code], onDelete: Restrict)
+  breakdownItems   QuoteBreakdown[]
+
+  @@map("quotes")
+}
+
+model QuoteBreakdown {
+  id      String           @id @db.Uuid
+  quoteId String           @map("quote_id") @db.Uuid
+  concept BreakdownConcept
+  amount  Int
+  quote   Quote            @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+
+  @@index([quoteId])
+  @@map("quote_breakdown")
+}
