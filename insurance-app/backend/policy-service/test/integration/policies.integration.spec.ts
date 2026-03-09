@@ -1,10 +1,10 @@
 import 'dotenv/config';
 import 'reflect-metadata';
-import { PrismaClient } from '@insurance/policy-prisma-client';
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { createPrismaClient } from '../../src/infrastructure/prisma/prisma-client';
 import { AppModule } from '../../dist/app.module.js';
 import { QUOTE_READ_CLIENT, QuoteReadClient } from '../../dist/domain/ports/quote-read.client.js';
 import { configureHttpApp } from '../../dist/presentation/bootstrap/http-app.bootstrap.js';
@@ -15,7 +15,7 @@ const quoteReadClientMock: QuoteReadClient = {
 
 describe('Policies Integration', () => {
   let app: INestApplication;
-  const prisma = new PrismaClient();
+  const prisma = createPrismaClient();
 
   beforeAll(async () => {
     const moduleRef: TestingModule = await Test.createTestingModule({

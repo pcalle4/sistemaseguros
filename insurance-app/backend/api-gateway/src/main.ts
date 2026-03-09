@@ -1,33 +1,20 @@
 import 'dotenv/config';
 import 'reflect-metadata';
-import { Logger, ValidationPipe } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import { loadEnvConfig } from './config/env';
+import { configureHttpApp } from './presentation/bootstrap/http-app.bootstrap';
+import { AppLogger } from './shared/logging/logger';
 
 async function bootstrap() {
+  const env = loadEnvConfig();
   const app = await NestFactory.create(AppModule);
+  configureHttpApp(app);
+  await app.listen(env.port);
 
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      transform: true,
-    }),
-  );
-
-  const swaggerConfig = new DocumentBuilder()
-    .setTitle('Insurance API Gateway')
-    .setDescription('Gateway service for insurance platform')
-    .setVersion('1.0.0')
-    .build();
-
-  const document = SwaggerModule.createDocument(app, swaggerConfig);
-  SwaggerModule.setup('docs', app, document);
-
-  const port = Number(process.env.PORT ?? 3050);
-  await app.listen(port);
-
-  Logger.log(`API Gateway running on http://localhost:${port}`, 'Bootstrap');
+  app.get(AppLogger).logInfo(`API Gateway running on http://localhost:${env.port}`);
+  Logger.log(`API Gateway running on http://localhost:${env.port}`, 'Bootstrap');
 }
 
 bootstrap();

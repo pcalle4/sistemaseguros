@@ -1,4 +1,3 @@
-import { BreakdownConcept } from '@prisma/client';
 import { Injectable } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import { BreakdownItem } from '../../domain/entities/breakdown-item';
@@ -31,7 +30,7 @@ export class PrismaQuotesRepository implements QuotesRepository {
         breakdownItems: {
           create: input.breakdown.map((item) => ({
             id: randomUUID(),
-            concept: item.concept as BreakdownConcept,
+            concept: item.concept,
             amount: item.amount,
           })),
         },

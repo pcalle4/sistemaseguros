@@ -8,6 +8,9 @@
   ],
   "scripts": {
     "install:all": "npm install",
+    "backend:setup": "bash ./scripts/start-backend.sh --setup-only",
+    "backend:up": "bash ./scripts/start-backend.sh",
+    "prisma:generate": "npm run prisma:generate --workspace backend/quote-service && npm run prisma:generate --workspace backend/policy-service",
     "dev": "concurrently -k -n postgres,gateway,quote,policy,frontend -c yellow,cyan,green,magenta,blue \"npm run dev:db\" \"npm run dev --workspace backend/api-gateway\" \"npm run dev --workspace backend/quote-service\" \"npm run dev --workspace backend/policy-service\" \"npm run dev --workspace frontend\"",
     "dev:db": "docker compose up postgres",
     "dev:db:detached": "docker compose up -d postgres",

@@ -26,6 +26,68 @@ cd insurance-app
 npm install
 ```
 
+`npm install` no ejecuta `prisma generate` automáticamente. Después de instalar dependencias, genera los clientes Prisma de forma explícita:
+
+```bash
+npm run prisma:generate
+```
+
+## Script Maestro Para Backend
+
+Si quieres dejar el backend listo con un solo comando, usa el script maestro desde `insurance-app/`:
+
+```bash
+npm run backend:up
+```
+
+Ese comando hace lo siguiente:
+
+- crea `backend/api-gateway/.env`, `backend/quote-service/.env` y `backend/policy-service/.env` si faltan
+- ejecuta `npm install` del monorepo
+- si `localhost:5432` ya esta ocupado, verifica si responde como PostgreSQL y lo reutiliza; si no, levanta PostgreSQL con Docker
+- verifica que exista la base `insurance_db` y crea los schemas `quote` y `policy` si faltan
+- ejecuta `prisma generate`
+- aplica migraciones de `quote-service` y `policy-service`
+- ejecuta el seed de `quote-service`
+- deja corriendo:
+  - API Gateway en `http://localhost:3050`
+  - Quote Service en `http://localhost:3060`
+  - Policy Service en `http://localhost:3070`
+
+Si solo quieres preparar el entorno sin dejar procesos corriendo:
+
+```bash
+npm run backend:setup
+```
+
+Si ya instalaste dependencias y quieres invocar el script directo:
+
+```bash
+bash ./scripts/start-backend.sh --skip-install
+```
+
+Por defecto, para este ejemplo, el script permite descargas Prisma con TLS inseguro si no defines una CA adicional.
+
+Si prefieres usar una CA corporativa o un proxy TLS confiable, ejecútalo así:
+
+```bash
+NODE_EXTRA_CA_CERTS=/ruta/ca.pem npm run backend:up
+```
+
+El script reutiliza ese certificado para `npm install` y comandos Prisma.
+
+Si quieres desactivar el fallback inseguro y obligar validación TLS normal:
+
+```bash
+ALLOW_INSECURE_PRISMA_TLS=false npm run backend:up
+```
+
+Supuestos del script:
+
+- si reutiliza un PostgreSQL ya corriendo en `localhost:5432`, debe aceptar las credenciales configuradas por el proyecto: `postgres/postgres`
+- si usas `NODE_EXTRA_CA_CERTS`, la ruta debe apuntar a un archivo `.pem` válido accesible desde tu máquina
+- si no defines `NODE_EXTRA_CA_CERTS`, el script usará `NODE_TLS_REJECT_UNAUTHORIZED=0` solo para comandos Prisma
+
 ## Variables de entorno
 
 Cada app tiene `.env.example` (copiar a `.env`):
@@ -78,6 +140,12 @@ Desde `insurance-app/`:
 npm run dev
 ```
 
+Para backend solamente, usa preferentemente:
+
+```bash
+npm run backend:up
+```
+
 Levanta en paralelo:
 
 - postgres
@@ -93,6 +161,7 @@ Desde `insurance-app/`:
 - `npm run lint`
 - `npm run test`
 - `npm run build`
+- `npm run prisma:generate`
 
 Por servicio (ejemplos):
 
