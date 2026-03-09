@@ -8,7 +8,7 @@ Microservicio NestJS para emisión y consulta de pólizas con Prisma/PostgreSQL 
 - `DATABASE_URL=postgresql://postgres:postgres@localhost:5432/insurance_db?schema=policy`
 - `QUOTE_SERVICE_URL=http://localhost:3060`
 
-Para tests de integración usa `schema=policy_test` en `.env.test`.
+Para tests de integración se utiliza `schema=policy_test` en `.env.test`.
 
 ## Scripts
 

@@ -1,5 +1,7 @@
 import { BadRequestException, INestApplication, ValidationError, ValidationPipe } from '@nestjs/common';
 import { HttpExceptionFilter } from '../../shared/errors/http-exception.filter';
+import { AppLogger } from '../../shared/logging/logger';
+import { RequestLoggingInterceptor } from '../../shared/logging/request-logging.interceptor';
 
 function flattenValidationErrors(
   validationErrors: ValidationError[],
@@ -39,4 +41,5 @@ export function configureHttpApp(app: INestApplication): void {
   );
 
   app.useGlobalFilters(new HttpExceptionFilter());
+  app.useGlobalInterceptors(new RequestLoggingInterceptor(app.get(AppLogger)));
 }

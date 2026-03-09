@@ -7,16 +7,21 @@
     "frontend"
   ],
   "scripts": {
-    "install:all": "npm install",
     "backend:setup": "bash ./scripts/start-backend.sh --setup-only",
     "backend:up": "bash ./scripts/start-backend.sh",
+    "frontend:up": "bash ./scripts/start-frontend.sh",
     "prisma:generate": "npm run prisma:generate --workspace backend/quote-service && npm run prisma:generate --workspace backend/policy-service",
-    "dev": "concurrently -k -n postgres,gateway,quote,policy,frontend -c yellow,cyan,green,magenta,blue \"npm run dev:db\" \"npm run dev --workspace backend/api-gateway\" \"npm run dev --workspace backend/quote-service\" \"npm run dev --workspace backend/policy-service\" \"npm run dev --workspace frontend\"",
+    "prisma:migrate": "npm run prisma:migrate --workspace backend/quote-service && npm run prisma:migrate --workspace backend/policy-service",
+    "prisma:seed": "npm run prisma:seed --workspace backend/quote-service && npm run prisma:seed --workspace backend/policy-service",
+    "dev": "concurrently -k -n gateway,quote,policy,frontend -c cyan,green,magenta,blue \"npm run dev --workspace backend/api-gateway\" \"npm run dev --workspace backend/quote-service\" \"npm run dev --workspace backend/policy-service\" \"npm run dev --workspace frontend\"",
+    "dev:full": "concurrently -k -n postgres,gateway,quote,policy,frontend -c yellow,cyan,green,magenta,blue \"npm run dev:db\" \"npm run dev --workspace backend/api-gateway\" \"npm run dev --workspace backend/quote-service\" \"npm run dev --workspace backend/policy-service\" \"npm run dev --workspace frontend\"",
     "dev:db": "docker compose up postgres",
     "dev:db:detached": "docker compose up -d postgres",
-    "lint": "npm run lint --workspaces --if-present",
-    "test": "npm run test --workspaces --if-present",
-    "build": "npm run build --workspaces --if-present"
+    "lint": "npm run lint --workspace backend/shared && npm run lint --workspace backend/api-gateway && npm run lint --workspace backend/quote-service && npm run lint --workspace backend/policy-service && npm run lint --workspace frontend",
+    "test:unit": "npm run test --workspace backend/shared && npm run test --workspace backend/api-gateway && npm run test --workspace backend/quote-service && npm run test --workspace backend/policy-service && npm run test --workspace frontend",
+    "test:integration": "npm run test:integration --workspace backend/quote-service && npm run test:integration --workspace backend/policy-service",
+    "test": "npm run test:unit && npm run test:integration",
+    "build": "npm run build --workspace backend/shared && npm run build --workspace backend/api-gateway && npm run build --workspace backend/quote-service && npm run build --workspace backend/policy-service && npm run build --workspace frontend"
   },
   "devDependencies": {
     "@eslint/js": "^9.22.0",

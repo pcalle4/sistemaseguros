@@ -1,0 +1,81 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: insurance_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres -d insurance_db"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    defaults:
+      run:
+        working-directory: insurance-app
+
+    env:
+      PORT: 3050
+      JWT_SECRET: libelulasoft
+      JWT_EXPIRES_IN: 1h
+      QUOTE_SERVICE_URL: http://localhost:3060
+      POLICY_SERVICE_URL: http://localhost:3070
+      MOCK_AUTH_EMAIL: user@example.com
+      MOCK_AUTH_PASSWORD: password
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: insurance-app/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Wait for PostgreSQL
+        run: |
+          for i in $(seq 1 30); do
+            if docker run --rm --network host -e PGPASSWORD=postgres postgres:16 pg_isready -h 127.0.0.1 -p 5432 -U postgres -d insurance_db; then
+              exit 0
+            fi
+            sleep 1
+          done
+          exit 1
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Generate Prisma clients
+        run: npm run prisma:generate
+
+      - name: Run migrations
+        run: npm run prisma:migrate
+
+      - name: Seed quote-service
+        run: npm run prisma:seed
+
+      - name: Run tests
+        run: npm run test
+
+      - name: Build
+        run: npm run build

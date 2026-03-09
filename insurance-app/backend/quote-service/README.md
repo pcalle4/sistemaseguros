@@ -35,7 +35,7 @@ npm run prisma:migrate
 npm run prisma:seed
 ```
 
-Para integración (usa `quote_test`):
+Para integración se utiliza `quote_test`:
 
 ```bash
 npm run test:integration

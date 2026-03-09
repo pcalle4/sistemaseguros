@@ -19,12 +19,14 @@ import { CatalogsController } from './presentation/controllers/catalogs.controll
 import { HealthController } from './presentation/controllers/health.controller';
 import { QuotesController } from './presentation/controllers/quotes.controller';
 import { AppLogger } from './shared/logging/logger';
+import { RequestLoggingInterceptor } from './shared/logging/request-logging.interceptor';
 
 @Module({
   imports: [PrismaModule],
   controllers: [CatalogsController, QuotesController, HealthController],
   providers: [
     AppLogger,
+    RequestLoggingInterceptor,
     PremiumCalculatorService,
     CatalogsValidatorService,
     ListInsuranceTypesUseCase,

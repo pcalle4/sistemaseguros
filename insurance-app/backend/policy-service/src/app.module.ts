@@ -15,12 +15,14 @@ import { HealthController } from './presentation/controllers/health.controller';
 import { PoliciesController } from './presentation/controllers/policies.controller';
 import { AppLogger } from './shared/logging/logger';
 import { FetchHttpClient, HTTP_CLIENT } from './shared/http/http-client';
+import { RequestLoggingInterceptor } from './shared/logging/request-logging.interceptor';
 
 @Module({
   imports: [PrismaModule],
   controllers: [PoliciesController, HealthController],
   providers: [
     AppLogger,
+    RequestLoggingInterceptor,
     IssuePolicyUseCase,
     GetPolicyUseCase,
     {

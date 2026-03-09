@@ -306,11 +306,9 @@ ensure_database
 
 run_prisma_command 'Generando clientes Prisma' npm run prisma:generate
 
-run_prisma_command 'Aplicando migraciones de quote-service' npm run prisma:migrate --workspace backend/quote-service
+run_prisma_command 'Aplicando migraciones Prisma' npm run prisma:migrate
 
-run_prisma_command 'Ejecutando seed de quote-service' npm run prisma:seed --workspace backend/quote-service
-
-run_prisma_command 'Aplicando migraciones de policy-service' npm run prisma:migrate --workspace backend/policy-service
+run_prisma_command 'Ejecutando seeds Prisma' npm run prisma:seed
 
 if [[ "$SETUP_ONLY" == "true" ]]; then
   log 'Preparacion completada'
